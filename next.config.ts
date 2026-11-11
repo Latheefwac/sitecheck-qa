@@ -1,9 +1,21 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  // Native / heavy server-only packages must not be bundled.
+  serverExternalPackages: [
+    "better-sqlite3",
+    "playwright",
+    "playwright-core",
+    "@axe-core/playwright",
+    "axe-core",
+    "lighthouse",
+    "chrome-launcher",
+    "exceljs",
+    "pngjs",
+    "pixelmatch",
+  ],
   turbopack: {
     rules: {
       "*.css": {
