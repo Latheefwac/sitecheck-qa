@@ -65,7 +65,7 @@ export async function emailChecks(ctx: ScanContext, scanStartedAt: Date) {
     ctx.check({ ...base, checkKey: "eml.html", title: "HTML email rendering", description: "Email has an HTML part", expected: "HTML body", actual: "Plain text only", severity: "Low", recommendation: null }, "warn");
     return;
   }
-  const b = await chromium.launch();
+  const b = await chromium.launch({ args: ["--disable-dev-shm-usage"] });
   try {
     for (const [name, width] of [["desktop", 800], ["mobile", 375]] as const) {
       const pg = await b.newPage({ viewport: { width, height: 900 } });

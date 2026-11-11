@@ -1,0 +1,18 @@
+# Render Blueprint: New > Blueprint, pick this repo. Persistent disks need a paid instance type.
+services:
+  - type: web
+    name: sitecheck-qa
+    runtime: docker
+    plan: standard # 2 GB RAM; browsers + Lighthouse need at least 2 GB
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    numInstances: 1 # SQLite and the in-process job queue need a single instance
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 5
+    envVars:
+      - key: QA_ADMIN_PASSWORD
+        sync: false # entered in the dashboard, never committed
+      - key: QA_SECRET_KEY
+        generateValue: true

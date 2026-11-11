@@ -3,7 +3,7 @@ import { ADMIN_COOKIE, adminGateEnabled, isAdminCookie } from "@/lib/admin-auth"
 
 // Developer share links are public by design (the unguessable token is the credential) and are
 // limited to one project by every /api/share route. Everything else is the admin area.
-const PUBLIC = [/^\/share\//, /^\/api\/share\//, /^\/login$/, /^\/api\/auth\/login$/];
+const PUBLIC = [/^\/share\//, /^\/api\/share\//, /^\/login$/, /^\/api\/auth\/login$/, /^\/api\/health$/];
 
 export function proxy(req: NextRequest) {
   if (!adminGateEnabled()) return NextResponse.next();

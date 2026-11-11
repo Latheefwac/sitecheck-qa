@@ -41,7 +41,7 @@ export async function performancePage(ctx: ScanContext, p: PageRecord, formFacto
   const chromeLauncher = await import("chrome-launcher");
   let chrome: Awaited<ReturnType<typeof chromeLauncher.launch>> | null = null;
   try {
-    chrome = await chromeLauncher.launch({ chromePath: chromium.executablePath(), chromeFlags: ["--headless=new", "--no-sandbox", "--disable-gpu"], logLevel: "silent" });
+    chrome = await chromeLauncher.launch({ chromePath: chromium.executablePath(), chromeFlags: ["--headless=new", "--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"], logLevel: "silent" });
     const config = formFactor === "desktop" ? (await import("lighthouse/core/config/desktop-config.js")).default : undefined;
     const extraHeaders = await ctx.authHeaders();
     const runner = await lighthouse(p.url, { port: chrome.port, output: "json", logLevel: "error", onlyCategories: ["performance"], extraHeaders, formFactor, screenEmulation: formFactor === "mobile" ? undefined : { disabled: true } }, config);

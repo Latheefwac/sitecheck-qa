@@ -162,7 +162,7 @@ export function reportHtml(scanId: string): string {
 
 export async function toPdf(scanId: string): Promise<Buffer> {
   const html = reportHtml(scanId);
-  const b = await chromium.launch();
+  const b = await chromium.launch({ args: ["--disable-dev-shm-usage"] });
   try {
     const page = await b.newPage();
     await page.setContent(html, { waitUntil: "load" });

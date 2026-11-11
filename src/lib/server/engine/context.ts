@@ -9,6 +9,8 @@ import type { AuthConfig, BrowserName, PageRecord, ScanOptions, Settings, TestRe
 
 /** Global event bus for real-time progress (consumed by the SSE route). */
 const g = globalThis as unknown as { __qaBus?: EventEmitter };
+/** Containers often give /dev/shm only 64 MB, which crashes Chromium on large pages. */
+const CHROME_ARGS = ["--disable-dev-shm-usage"];
 export const bus: EventEmitter = (g.__qaBus ??= new EventEmitter().setMaxListeners(200));
 
 export interface ScanEvent {
@@ -85,8 +87,8 @@ export class ScanContext {
     let b: Browser;
     if (name === "firefox") b = await firefox.launch();
     else if (name === "webkit") b = await webkit.launch();
-    else if (name === "msedge") b = await chromium.launch({ channel: "msedge" });
-    else b = await chromium.launch();
+    else if (name === "msedge") b = await chromium.launch({ channel: "msedge", args: CHROME_ARGS });
+    else b = await chromium.launch({ args: CHROME_ARGS });
     this.browsers.set(name, b);
     return b;
   }

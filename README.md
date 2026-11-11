@@ -94,6 +94,38 @@ You can revoke a link at any time, and it stops working immediately. Tokens are 
 - **Overall** is the weighted average of the category scores. You can change the weights in Settings.
 - **Production ready** requires no open critical issues, open High issues within the configured limit, and an overall score at or above the threshold. The handover status is `READY FOR QA`, `READY WITH WARNINGS` or `NOT READY`.
 
+## Deploying (Docker on Railway or Render)
+
+The app needs one always-running server with real browsers and a persistent disk, so it can't run on Vercel or other serverless hosts. The included `Dockerfile` is based on the official Playwright image (Chromium, Firefox and WebKit) and stores everything in `/data`.
+
+| Variable | Required | Notes |
+|---|---|---|
+| `QA_ADMIN_PASSWORD` | Yes | The container refuses to start without it, so the admin area is never left open on the internet |
+| `QA_SECRET_KEY` | Recommended | Any long random string. Encrypts stored scan credentials and share tokens. If you change it, existing ones stop working |
+| `QA_DATA_DIR` | No | Defaults to `/data` in the image |
+
+Run **one instance only**. SQLite and the job queue live inside the container. Give it at least **2 GB RAM**, since Lighthouse and three browser engines are heavy.
+
+**Railway**
+1. New Project → Deploy from GitHub repo → pick this repo. `railway.json` makes it build the Dockerfile and use `/api/health` for health checks.
+2. On the service, open **Variables** and add `QA_ADMIN_PASSWORD` and `QA_SECRET_KEY`.
+3. Right-click the service → **Attach volume**, mount path `/data`.
+4. Under **Settings → Networking**, choose **Generate domain** (port 3000).
+
+**Render**
+1. New → **Blueprint** → pick this repo. `render.yaml` creates a Docker web service with a 5 GB disk at `/data` and generates `QA_SECRET_KEY`.
+2. Enter `QA_ADMIN_PASSWORD` when asked. Disks need a paid instance type; the blueprint uses *Standard* (2 GB).
+
+**Locally**
+```bash
+docker build -t sitecheck-qa .
+docker run -p 3000:3000 -v sitecheck-data:/data -e QA_ADMIN_PASSWORD=change-me -e QA_SECRET_KEY=$(openssl rand -hex 32) sitecheck-qa
+```
+
+When you upgrade `playwright` in package.json, change the image tag on the first line of the Dockerfile to the same version.
+
+A hosted scanner can reach anything its server can, so only scan sites you're authorised to test. Form submissions stay blocked unless you turn them on in Settings.
+
 ## Safety
 
 - Only scan sites you are authorised to test. The checks are passive: GET requests, a real browser, and well-known file paths. Nothing is destructive or intrusive.
